@@ -4,12 +4,12 @@
   connection: local
   gather_facts: no
   vars:
-    subscription_id: "ed8861e0-0657-467b-bb7d-069bf3f64457"
+    subscription_id: "add Id here"
     vaultName: "merakikey"
     vaultSecretName: "merakiapikey"
-    servicePrincipalId: "014bfab2-decd-476e-88f7-e717b899f9b0"
-    servicePrincipalPassword: "H-G8Q~JaTHF_fQrOn8TKWuroHM~168u~o~IWIcyQ"
-    tenantId: "bb2951b7-328b-4067-a4b1-474b66c9cefc"
+    servicePrincipalId: "add Id here"
+    servicePrincipalPassword: "add password here"
+    tenantId: "add Id here"
   
   tasks:
     - name: connect AzPowerShell to Azure
