@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "meraki-vmx-398309",
+  "private_key_id": "523b63994a8b77c2faaa85642b84daea18cb87e9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC16qwWkxD7JTQp\noa81cxRmzm+wMfayvD09z/vPHUB0nfnfyE28y2Q1LOKAsM0bVggBFTF/ppXx4rh6\nHyWeJpUK0ft32qw/QnNdsgzX2nALQMI6OD35jcxtCa3+cU0zy8wNJOoZFN7vucro\nlgtJD4v+vp6JDZZI48jNqn8SbTte53UQ3jq9ReZl4ZTYFQ/86h9z8jOxlVFR/Mmp\n/bhOz1uzZUfMNALnfwqiteLPXCKAE0VMF+gHe0L6Jvp+RBi6iR0urtJoUC9dbO/L\nkDMSOAYYIw8hm7/vy+a1xnpZBvz3xkDAXbtE9ltH4XgjH4MRlr/P+oxT2z54ShWR\n/ojy68xVAgMBAAECggEABKOOh9s9AtDlp6CFeBBBl1PxHSxPZV3Pe5TWKWeBjhFW\nBRLcIjhXJQcwyQwfiHCFLu6va6XmPo83Gd+5dQySBTI3MczUH58+LRSuDY/dOfkI\nx7TiphgR/Aw6V6BKa7IcUSl9a4fqUQqkosTqVltpiOSrfkTObd8BIkPhKA/vatgV\n6pUsHkYbuMaY54dPubPM23N9qF/yQq3o9VTuXKWg/tysQGTENBLMibneTCPA5se4\n+9ulbr4pfiLZv0VwPdkpuTMDuf7das69XQKMA5Tu0A/ggOM53Z+wcQqv5TQHeUMp\nbSNcTYvZBHT50I7j2ZuOgjOivi1gRb6e9PeyzgYi8QKBgQDjldoUoERPnKAhE4Qb\nA1mj6aebOXFSYD7CgT3xxdzqMXOk42cIHiYBcy92XrEYxPJxFN2hGFLWyRwC7NdX\nL3u+4ollPCLT+clAvD+JH3DLFWiUcmi5kIrH3wxV9vc+rC2GQm2HhiIvjf/g1fFX\nBmplT+7scvayyRMfDQ5YuHJ9lwKBgQDMoSUwvLYKJqYM/kCuO5Exg57cQhjO3xbO\nqKS9WOkAMwNrO3x/YDunUB8c96U9yva1hVDfganLu3fOb1vrUXw3VVjBFbjIUnV1\nIjN2pJIrLBrWO28kJK8YmXb3Lhz/StNC9oa2u0B6G/sZs4V8PEhmHit26k+Fclsh\nGyQu3JTa8wKBgChy+c+wrHN54vv9+/zRG52GacOs8fcyI/VuAxR1lk4JfARSZn2K\n3jZjwovHSLKeTnjKvJllOVPzaocakSttxRCoMsNLbOVAAAUBcEluzR1LMMsximtw\nxTnA6vBcdJUvBOhX5h+wN2M8Wb4cSEivWzmme1CLHk2obz2VlHcwUSkBAoGAN+So\nUOiq3Jjz8EaeijjRDvJBuS4Asrjy9N3RqbqYYiqM+4RTHEO/55KV/QaTxw4iVzCk\nB3jWVUTOk7+NHvix8jdIt+zj/Suw057U6cpH9qzkY7H2SKwQe6qneRrKZt0cWYUX\nBOCe2vu7maiUhHu+1s3U13Vm5S94PtG4D2jG7AsCgYEA3+bZVEZW+oCbnyywGNt/\nF/ndDMiwn/kNci7ZPxa16YO5mc68sw0XuwcAHqmceBM7xmJXoNqPKISuCpXwnyRM\nXZbqvMPUKrkdR7VBwjcoWhtou6/GVoIk+eYZ2+HVlt/LwpQdU4Dr0Q4gG8HDjVhK\n8Iqgh+Jn2VClDt0SRQnC/vg=\n-----END PRIVATE KEY-----\n",
+  "client_email": "meraki-admin@meraki-vmx-398309.iam.gserviceaccount.com",
+  "client_id": "107655329576410240850",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/meraki-admin%40meraki-vmx-398309.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
