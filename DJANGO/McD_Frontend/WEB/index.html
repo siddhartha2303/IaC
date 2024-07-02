@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd; /* Change background color on hover */
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #ccc; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="devices.html">Devices</a></li>
+            <li><a href="vlans.html">VLANs</a></li>
+            <li><a href="ssid.html">SSID</a></li>
+        </ul>
+    </nav>
+</body>
+</html>

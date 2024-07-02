@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLAN</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #969292;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        nav ul li a:hover {
+            background-color: #272626; /* Change background color on hover */
+            color: white; 
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #b1c8f1; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"],
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .light-yellow-bg {
+            background-color: #fff9c4;  /* Added */
+        }  
+
+        .small-header {
+            font-size: 12px; /* Adjust the font size as needed */
+            /* You can also add other styling properties here */
+        }
+
+        .with-border {
+            border-collapse: collapse;
+            border: 1px solid black; /* Add border to the table */
+        }
+
+        .with-border th, .with-border td {
+            border: 1px solid black; /* Add border to table cells */
+            padding: 8px; /* Add padding for better spacing */
+        }
+
+        .with-border th {
+            background-color: lightgray; /* Add background color for header */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'claim_devices_html' %}">Devices</a></li>
+            <li class="active"><a href="{% url 'vlan_html' %}">VLANs</a></li>
+            <li><a href="{% url 'wifi_html' %}">Wifi</a></li>
+        </ul>
+    </nav>
+
+    <form method="post" action="{% url 'vlan' %}">
+    {% csrf_token %}
+        <div class="container">
+            <div class="column">
+                <h2>VLAN & DHCP Configuration</h2>
+                    <label for="networkName">Network Name:</label>
+                    <input type="text" id="networkName" name="networkName">
+
+                    <label for="name">Name:</label>
+                    <input type="text" id="vlan_name" name="vlan_name">
+
+                    <label for="vlan_id">VLAN ID:</label>
+                    <input type="text" id="vlan_id" name="vlan_id">
+
+                    <label for="subnet">Subnet:</label>
+                    <input type="text" id="subnet" name="subnet">
+
+                    <label for="gateway">Gateway:</label>
+                    <input type="text" id="gateway" name="gateway">
+
+                    <label for="enable_dhcp">Enable DHCP:</label>
+                    <select id="enable_dhcp" name="enable_dhcp">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+
+                    <label for="lease_time">Lease Time:</label>
+                    <select id="lease_time" name="lease_time">
+                        <option value="1_day">1 day</option>
+                        <option value="1_week">1 week</option>
+                    </select>
+            </div>
+            
+            <div class="column">
+                <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+                    <label for="reserved_ip_start">Reserved IP Start:</label>
+                    <input type="text" id="reserved_ip_start" name="reserved_ip_start">
+
+                    <label for="reserved_ip_end">Reserved IP End:</label>
+                    <input type="text" id="reserved_ip_end" name="reserved_ip_end">
+
+                    <label for="dns_nameservers">DNS Nameservers:</label>
+                    <input type="text" id="dns_nameservers" name="dns_nameservers">
+
+                    <label for="dhcp_option">DHCP Option:</label>
+                    <input type="text" id="dhcp_option" name="dhcp_option">
+
+                    <label for="dhcp_type">DHCP Type:</label>
+                    <input type="text" id="dhcp_type" name="dhcp_type">
+
+                    <label for="ntp_ip">NTP IP:</label>
+                    <input type="text" id="ntp_ip" name="ntp_ip">
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+    <div>
+        <!-- CSV Upload Form -->
+        <form method="post" enctype="multipart/form-data" action="{% url 'vlan' %}">
+            {% csrf_token %}
+            <div class="container">
+                <div class="column">
+                    <h2>Import VLAN CSV</h2>
+                    <input type="file" name="csvFile" accept=".csv">
+                    <input type="submit" value="Upload CSV">
+                </div>
+            </div>
+        </form>
+
+        <!-- Existing VLAN Entries -->
+        {% if vlans %}
+        <div class="light-yellow-bg">
+            <h4>Existing VLAN Entries:</h4>
+            <table class="table with-border">
+                <thead class="small-header">
+                    <tr>
+                        <th>Action</th>
+                        <th>Network Name</th>
+                        <th>VLAN ID</th>
+                        <th>VLAN Name</th>
+                        <th>Subnet</th>
+                        <th>Gateway</th>
+                        <th>Enable DHCP</th>
+                        <th>Lease Time</th>
+                        <th>Reserved IP Start</th>
+                        <th>Reserved IP End</th>
+                        <th>DNS Nameservers</th>
+                        <th>DHCP Option</th>
+                        <th>DHCP Type</th>
+                        <th>NTP IP</th>
+                    </tr>
+                </thead>
+                <tbody class="small-header">
+                    {% for vlan in vlans %}
+                    <tr>
+                        <td>
+                            <form method="post" action="{% url 'delete_vlan' vlan.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                        <td>{{ vlan.networkName }}</td>
+                        <td>{{ vlan.vlan_id }}</td>
+                        <td>{{ vlan.vlan_name }}</td>
+                        <td>{{ vlan.subnet }}</td>
+                        <td>{{ vlan.gateway }}</td>
+                        <td>{{ vlan.enable_dhcp }}</td>
+                        <td>{{ vlan.lease_time }}</td>
+                        <td>{{ vlan.reserved_ip_start }}</td>
+                        <td>{{ vlan.reserved_ip_end }}</td>
+                        <td>{{ vlan.dns_nameservers }}</td>
+                        <td>{{ vlan.dhcp_option }}</td>
+                        <td>{{ vlan.dhcp_type }}</td>
+                        <td>{{ vlan.ntp_ip }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

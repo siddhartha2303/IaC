@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devices</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #969292;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        nav ul li a:hover {
+            background-color: #272626; /* Change background color on hover */
+            color: white; 
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #b1c8f1; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"] {
+            width: calc(100% - 24px); /* Adjust width to account for radio buttons */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Select dropdown style */
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .light-yellow-bg {
+            background-color: #fff9c4;  /* Added */
+        }   
+        .small-header {
+            font-size: 12px; /* Adjust the font size as needed */
+            /* You can also add other styling properties here */
+        }
+        .with-border {
+            border-collapse: collapse;
+            border: 1px solid black; /* Add border to the table */
+        }
+
+        .with-border th, .with-border td {
+            border: 1px solid black; /* Add border to table cells */
+            padding: 8px; /* Add padding for better spacing */
+        }
+
+        .with-border th {
+            background-color: lightgray; /* Add background color for header */
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li class="active"><a href="{% url 'claim_devices_html' %}">Devices</a></li>
+            <li><a href="{% url 'vlan_html' %}">VLANs</a></li>
+            <li><a href="{% url 'wifi_html' %}">WIFI</a></li>
+        </ul>
+    </nav>
+    
+
+    <form method="post" action="{% url 'claim_devices' %}">
+    {% csrf_token %}
+        <div class="container">
+                <div class="column">
+                    <h2>Claim Devices</h2>
+                        <label for="serial">Serial No.:</label>
+                        <input type="text" id="serial-no" name="serial_no" placeholder="Enter serial number">
+
+                        <label for="warm_spare">Warm Spare:</label>
+                        <select id="warmspare" name="warmspare">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                </div>
+                <div class="column">
+                    <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+                        <label for="hostname">Hostname:</label>
+                        <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+
+                        <label for="stp_root">STP Root:</label>
+                        <select id="stp-root" name="stp_root">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="submit" value="Submit">
+        </div>
+    </form>    
+    <div>
+        <!-- Existing Device Entries -->
+        {% if devices %}
+        <div class="light-yellow-bg">
+            <h4>Existing Device Entries:</h4>
+            <table class="table with-border">
+                <thead class="small-header">
+                    <tr>
+                        <th>Action</th>
+                        <th>Serial No.</th>
+                        <th>Hostname</th>
+                        <th>Warm Spare</th>
+                        <th>STP Root</th>
+                    </tr>
+                </thead>
+                <tbody class="small-header">
+                    {% for device in devices %}
+                    <tr>
+                        <td>
+                            <form method="post" action="{% url 'delete_device' device.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                        <td>{{ device.serial_no }}</td>
+                        <td>{{ device.hostname }}</td>
+                        <td>{{ device.warmspare }}</td>
+                        <td>{{ device.stp_root }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+        {% endif %}  
+    </div>
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

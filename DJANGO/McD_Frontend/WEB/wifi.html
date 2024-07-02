@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSID Configuration</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            margin-bottom: 20px; /* Add margin to prevent content from overlapping with the nav bar */
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd; /* Change background color on hover */
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #ccc; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"],
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="devices.html">Devices</a></li>
+            <li><a href="vlan.html">VLAN</a></li>
+            <li class="active"><a href="ssid.html">SSID</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="column">
+            <h2>SSID Configuration</h2>
+            <form>
+                <label for="number">Number:</label>
+                <input type="text" id="number" name="number">
+
+                <label for="ssid">SSID:</label>
+                <input type="text" id="ssid" name="ssid">
+
+                <label for="authMode">Authentication Mode:</label>
+                <select id="authMode" name="authMode">
+                    <option value="8021x-localradius">8021x-localradius</option>
+                    <option value="psk">PSK</option>
+                </select>
+
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password">
+
+                <label for="ipAssignmentMode">IP Assignment Mode:</label>
+                <select id="ipAssignmentMode" name="ipAssignmentMode">
+                    <option value="layer_3_roaming">Layer 3 Roaming</option>
+                </select>
+            </form>
+        </div>
+        
+        <div class="column">
+            <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+            <form>
+                <label for="vlanId">VLAN ID:</label>
+                <input type="text" id="vlanId" name="vlanId">
+
+                <label for="visible">Visible:</label>
+                <select id="visible" name="visible">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+
+                <label for="clientRootCaCertificate">Client Root CA Certificate:</label>
+                <input type="text" id="clientRootCaCertificate" name="clientRootCaCertificate">
+
+                <label for="encryptionMode">Encryption Mode:</label>
+                <input type="text" id="encryptionMode" name="encryptionMode">
+                
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

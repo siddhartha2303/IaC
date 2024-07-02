@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devices</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            margin-bottom: 20px; /* Add margin to prevent content from overlapping with the nav bar */
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd; /* Change background color on hover */
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #ccc; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"] {
+            width: calc(100% - 24px); /* Adjust width to account for radio buttons */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Select dropdown style */
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .light-yellow-bg {
+            background-color: #fff9c4;  /* Added */
+        }   
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li class="active"><a href="devices.html">Devices</a></li>
+            <li><a href="vlans.html">VLANs</a></li>
+            <li><a href="ssid.html">SSID</a></li>
+        </ul>
+    </nav>
+
+    <form method="post" action="{% url 'claim_devices' %}">
+        <div class="container">
+                <div class="column">
+                    <h2>Claim Devices</h2>
+                        <label for="serial">Serial No.:</label>
+                        <input type="text" id="serial" name="serial">
+
+                        <label for="warm_spare">Warm Spare:</label>
+                        <select id="warm_spare" name="warm_spare">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                </div>
+                <div class="column">
+                    <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+                        <label for="hostname">Hostname:</label>
+                        <input type="text" id="hostname" name="hostname">
+
+                        <label for="stp_root">STP Root:</label>
+                        <select id="stp_root" name="stp_root">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="submit" value="Submit">
+        </div>
+    </form>    
+    <div>
+        <!-- Existing Device Entries -->
+        {% if devices %}
+        <div class="light-yellow-bg">
+            <h3>Existing Device Entries:</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Serial No.</th>
+                        <th>Hostname</th>
+                        <th>Warm Spare</th>
+                        <th>STP Root</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                    <tr>
+                        <td>
+                            <form method="post" action="{% url 'delete_device' device.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                        <td>{{ device.serial_no }}</td>
+                        <td>{{ device.hostname }}</td>
+                        <td>{{ device.warmspare }}</td>
+                        <td>{{ device.stp_root }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+        {% endif %}  
+    </div>
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

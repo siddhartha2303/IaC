@@ -1,0 +1,5 @@
+[meraki_remote]
+remote_hq
+
+[meraki]
+localhost

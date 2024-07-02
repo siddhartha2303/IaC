@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabbed Interface</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        /* Style for the tabs */
+        .nav-tabs .nav-link {
+            border: 1px solid #007bff;
+            border-radius: 10px 10px 0 0; /* Rounded corners */
+            outline: none; /* Remove default outline */
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #007bff; /* Change to desired color */
+            color: #fff; /* Change to desired text color */
+            border-color: #007bff; /* Change to desired border color */
+        }
+        /* Custom outline for active tab */
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #ffffff; /* Change to desired color */
+        }
+        /* Style for the tab content */
+        .tab-content {
+            border: 1px solid #007bff; /* Outline for tab content */
+            border-radius: 0 0 10px 10px; /* Rounded corners */
+            padding: 1rem;
+        }
+        /* Compact form style */
+        .form-group {
+            margin-bottom: 0.5rem; /* Reduce vertical margin */
+        }
+        /* Custom style for the light yellow background */
+        .light-yellow-bg {
+            background-color: #fff9c4;  /* Added */
+            padding: 10px;  /* Added */
+            margin-bottom: 20px;  /* Added */
+            border-radius: 5px;  /* Added */
+        }    
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="claim-devices-tab" data-toggle="tab" href="#claim-devices">Claim Devices</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="vlan-tab" data-toggle="tab" href="#vlan">VLAN</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="claim-devices">
+            <!-- Content for the Claim Devices tab -->
+            <form method="post" action="{% url 'claim_devices' %}">
+                {% csrf_token %}
+                <input type="hidden" name="tab" value="claim-devices"> <!-- Hidden input field for Claim Devices tab -->
+                <div class="form-group">
+                    <label for="serial-no">Serial No.:</label>
+                    <input type="text" class="form-control" id="serial-no" name="serial_no" placeholder="Enter serial number">
+                </div>
+                <div class="form-group">
+                    <label for="hostname">Hostname:</label>
+                    <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Enter hostname">
+                </div>
+                <div class="form-group">
+                    <label for="warmspare">Warm Spare:</label>
+                    <select class="form-control" id="warmspare" name="warmspare">
+                        <option value="TRUE">Yes</option>
+                        <option value="FALSE">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="stp-root">STP Root:</label>
+                    <select class="form-control" id="stp-root" name="stp_root">
+                        <option value="TRUE">Yes</option>
+                        <option value="FALSE">No</option>
+                    </select>
+                </div>               
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            <!-- Existing Device Entries -->
+            {% if devices %}
+            <div class="light-yellow-bg">
+                <h3>Existing Device Entries:</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Serial No.</th>
+                            <th>Hostname</th>
+                            <th>Warm Spare</th>
+                            <th>STP Root</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for device in devices %}
+                        <tr>
+                            <td>
+                                <form method="post" action="{% url 'delete_device' device.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                            <td>{{ device.serial_no }}</td>
+                            <td>{{ device.hostname }}</td>
+                            <td>{{ device.warmspare }}</td>
+                            <td>{{ device.stp_root }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            {% if success_message %}
+            <div class="alert alert-success">
+                {{ success_message }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="vlan">
+            <!-- Content for the VLAN tab -->
+            <form method="post" action="{% url 'vlan' %}">
+                {% csrf_token %}
+                <input type="hidden" name="tab" value="vlan"> <!-- Hidden input field for VLAN tab -->
+                <div class="form-group">
+                    <label for="networkName">Network Name:</label>
+                    <input type="text" class="form-control" id="networkName" name="networkName" placeholder="Enter network name">
+                </div>
+                <div class="form-group">
+                    <label for="vlan_id">VLAN ID:</label>
+                    <input type="number" class="form-control" id="vlan_id" name="vlan_id" placeholder="Enter VLAN ID">
+                </div>
+                <div class="form-group">
+                    <label for="vlan_name">VLAN Name:</label>
+                    <input type="text" class="form-control" id="vlan_name" name="vlan_name" placeholder="Enter VLAN Name">
+                </div>
+                <div class="form-group">
+                    <label for="subnet">Subnet:</label>
+                    <input type="text" class="form-control" id="subnet" name="subnet" placeholder="Enter subnet">
+                </div>
+                <div class="form-group">
+                    <label for="gateway">Gateway:</label>
+                    <input type="text" class="form-control" id="gateway" name="gateway" placeholder="Enter gateway">
+                </div>
+                <div class="form-group">
+                    <label for="enable_dhcp">Enable DHCP:</label>
+                    <select class="form-control" id="enable_dhcp" name="enable_dhcp">
+                        <option value="TRUE">Yes</option>
+                        <option value="FALSE">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lease_time">Lease Time:</label>
+                    <input type="text" class="form-control" id="lease_time" name="lease_time" placeholder="Enter lease time">
+                </div>
+                <div class="form-group">
+                    <label for="reserved_ip_start">Reserved IP Start:</label>
+                    <input type="text" class="form-control" id="reserved_ip_start" name="reserved_ip_start" placeholder="Enter reserved IP start">
+                </div>
+                <div class="form-group">
+                    <label for="reserved_ip_end">Reserved IP End:</label>
+                    <input type="text" class="form-control" id="reserved_ip_end" name="reserved_ip_end" placeholder="Enter reserved IP end">
+                </div>
+                <div class="form-group">
+                    <label for="dns_nameservers">DNS Nameservers:</label>
+                    <input type="text" class="form-control" id="dns_nameservers" name="dns_nameservers" placeholder="Enter DNS nameservers">
+                </div>
+                <div class="form-group">
+                    <label for="dhcp_option">DHCP Option:</label>
+                    <input type="text" class="form-control" id="dhcp_option" name="dhcp_option" placeholder="Enter DHCP option">
+                </div>
+                <div class="form-group">
+                    <label for="dhcp_type">DHCP Type:</label>
+                    <input type="text" class="form-control" id="dhcp_type" name="dhcp_type" placeholder="Enter DHCP type">
+                </div>
+                <div class="form-group">
+                    <label for="ntp_ip">NTP IP:</label>
+                    <input type="text" class="form-control" id="ntp_ip" name="ntp_ip" placeholder="Enter NTP IP">
+                </div>
+                <!-- Add other form fields for VLAN entry -->
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            <!-- Existing VLAN Entries -->
+            {% if vlans %}
+            <div class="light-yellow-bg">
+                <h3>Existing VLAN Entries:</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Network Name</th>
+                            <th>VLAN ID</th>
+                            <th>VLAN Name</th>
+                            <th>Subnet</th>
+                            <th>Gateway</th>
+                            <th>Enable DHCP</th>
+                            <th>Lease Time</th>
+                            <th>Reserved IP Start</th>
+                            <th>Reserved IP End</th>
+                            <th>DNS Nameservers</th>
+                            <th>DHCP Option</th>
+                            <th>DHCP Type</th>
+                            <th>NTP IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vlan in vlans %}
+                        <tr>
+                            <td>
+                                <form method="post" action="{% url 'delete_vlan' vlan.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                            <td>{{ vlan.networkName }}</td>
+                            <td>{{ vlan.vlan_id }}</td>
+                            <td>{{ vlan.vlan_name }}</td>
+                            <td>{{ vlan.subnet }}</td>
+                            <td>{{ vlan.gateway }}</td>
+                            <td>{{ vlan.enable_dhcp }}</td>
+                            <td>{{ vlan.lease_time }}</td>
+                            <td>{{ vlan.reserved_ip_start }}</td>
+                            <td>{{ vlan.reserved_ip_end }}</td>
+                            <td>{{ vlan.dns_nameservers }}</td>
+                            <td>{{ vlan.dhcp_option }}</td>
+                            <td>{{ vlan.dhcp_type }}</td>
+                            <td>{{ vlan.ntp_ip }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            {% if success_message %}
+            <div class="alert alert-success">
+                {{ success_message }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if success_message %}
+<div class="alert alert-success">
+    {{ success_message }}
+</div>
+{% endif %}
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

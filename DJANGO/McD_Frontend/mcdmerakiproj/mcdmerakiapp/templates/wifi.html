@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wifi</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #969292;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        nav ul li a:hover {
+            background-color: #272626; /* Change background color on hover */
+            color: white; 
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #b1c8f1; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"],
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .light-yellow-bg {
+            background-color: #fff9c4;  /* Added */
+        }  
+
+        .small-header {
+            font-size: 12px; /* Adjust the font size as needed */
+            /* You can also add other styling properties here */
+        }
+
+        .with-border {
+            border-collapse: collapse;
+            border: 1px solid black; /* Add border to the table */
+        }
+
+        .with-border th, .with-border td {
+            border: 1px solid black; /* Add border to table cells */
+            padding: 8px; /* Add padding for better spacing */
+        }
+
+        .with-border th {
+            background-color: lightgray; /* Add background color for header */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'claim_devices_html' %}">Devices</a></li>
+            <li><a href="{% url 'vlan_html' %}">VLANs</a></li>
+            <li class="active"><a href="{% url 'wifi_html' %}">Wifi</a></li>
+        </ul>
+    </nav>
+
+    <form method="post" action="{% url 'wifi' %}">
+    {% csrf_token %}
+        <div class="container">
+            <div class="column">
+                <h2>Wifi Configuration</h2>
+                    <label for="ssid">SSID:</label>
+                    <input type="text" id="ssid" name="ssid">
+
+                    <label for="authMode">Authentication Mode:</label>
+                    <select id="authMode" name="authMode">
+                        <option value="wpa">WPA</option>
+                        <option value="wpa2">WPA2</option>
+                        <option value="wep">WEP</option>
+                    </select>
+
+                    <label for="password">Password:</label>
+                    <input type="text" id="password" name="password">
+
+                    <label for="ipAssignmentMode">IP Assignment Mode:</label>
+                    <select id="ipAssignmentMode" name="ipAssignmentMode">
+                        <option value="static">Static</option>
+                        <option value="dynamic">Dynamic</option>
+                    </select>
+            </div>
+            
+            <div class="column">
+                <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+                    <label for="vlanId">VLAN ID:</label>
+                    <input type="text" id="vlanId" name="vlanId">
+
+                    <label for="visible">Visible:</label>
+                    <select id="visible" name="visible">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+
+                    <label for="encryptionMode">Encryption Mode:</label>
+                    <input type="text" id="encryptionMode" name="encryptionMode">
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+    <div>
+        <!-- CSV Upload Form -->
+        <form method="post" enctype="multipart/form-data" action="{% url 'process_csv' %}">
+            {% csrf_token %}
+            <div class="container">
+                <div class="column">
+                    <h2>Import Wifi CSV</h2>
+                    <input type="file" name="csvFile" accept=".csv">
+                    <input type="submit" value="Upload CSV">
+                </div>
+            </div>
+        </form>
+
+        <!-- Existing Wifi Entries -->
+        {% if ssids %}
+        <div class="light-yellow-bg">
+            <h4>Existing Wifi Entries:</h4>
+            <table class="table with-border">
+                <thead class="small-header">
+                    <tr>
+                        <th>Action</th>
+                        <th>SSID</th>
+                        <th>Authentication Mode</th>
+                        <th>Password</th>
+                        <th>IP Assignment Mode</th>
+                        <th>VLAN ID</th>
+                        <th>Visible</th>
+                        <th>Encryption Mode</th>
+                    </tr>
+                </thead>
+                <tbody class="small-header">
+                    {% for ssid in ssids %}
+                    <tr>
+                        <td>
+                            <form method="post" action="{% url 'delete_wifi' ssid.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                        <td>{{ ssid.ssid }}</td>
+                        <td>{{ ssid.authMode }}</td>
+                        <td>{{ ssid.password }}</td>
+                        <td>{{ ssid.ipAssignmentMode }}</td>
+                        <td>{{ ssid.vlanId }}</td>
+                        <td>{{ ssid.visible }}</td>
+                        <td>{{ ssid.encryptionMode }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

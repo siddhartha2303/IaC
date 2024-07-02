@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Claim Devices{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="claim-devices-tab" data-toggle="tab" href="#claim-devices">Claim Devices</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="vlan-tab" data-toggle="tab" href="#vlan">VLAN</a>
+        </li>
+        <!-- Add more tabs here if needed -->
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="claim-devices">
+            <!-- Content for the Claim Devices tab -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="serial-no">Serial No.:</label>
+                    <input type="text" class="form-control" id="serial-no" name="serial_no" placeholder="Enter serial number">
+                </div>
+                <div class="form-group">
+                    <label for="hostname">Hostname:</label>
+                    <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Enter hostname">
+                </div>
+                <div class="form-group">
+                    <label for="warmspare">Warm Spare:</label>
+                    <select class="form-control" id="warmspare" name="warmspare">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="stp-root">STP Root:</label>
+                    <select class="form-control" id="stp-root" name="stp_root">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>               
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="vlan">
+            <!-- Content for the VLAN tab -->
+            <p>VLAN information goes here...</p>
+        </div>
+        <!-- Add more tab panes here if needed -->
+    </div>
+</div>
+
+{% if success_message %}
+<div class="container mt-3">
+    <div class="alert alert-success" role="alert">
+        {{ success_message }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

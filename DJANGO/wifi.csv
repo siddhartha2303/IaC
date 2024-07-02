@@ -1,0 +1,6 @@
+number,ssid,authMode,password,ipAssignmentMode,vlanId,visible,encryptionMode
+0,McD_HHOT,8021x-localradius,HCLtech@2024,Layer 3 roaming,420,false,wpa
+1,McD_HHOT2,psk,HCLtech@2024,VPN,410,false,wpa
+2,Guest Wi-Fi,psk,HCLtech@2024,Layer 3 roaming,450,true,wpa
+3,McD_Crew,psk,HCLtech@2024,Layer 3 roaming,451,false,wpa
+4,McD_IoT,psk,HCLtech@2024,Layer 3 roaming,492,false,wpa

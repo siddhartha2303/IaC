@@ -1,0 +1,57 @@
+- name: "PLAY 1: CLAIM DEVICES"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    database_host: "52.170.44.247:27017"
+    database_name: "mcdmerakidb"
+
+  tasks:
+
+    - name: "TASK 1: Read data from MongoDB"
+      community.mongodb.mongodb:
+      with_mongodb:
+        - database: "{{ database_name }}"
+          collection: "mcdmerakiapp_device"
+          connection_string: "mongodb://{{database_host}}"
+      register: device_serial
+
+    - debug:
+        var: device_serial
+
+#    - name: "TASK 2: Query office network"
+#      meraki_network:
+#        auth_key: "{{ meraki_key }}"
+#        state: query
+#        org_name: "{{ orgName }}"
+#        name: "{{ networkName }}"
+#        type: 
+#          - appliance
+#          - switch
+#          - wireless
+#          - sensor
+#          - systemsManager
+#          - camera
+#          - cellularGateway
+#      register: off_network
+#
+#    - name: "TASK 3: Add Devices to Network"
+#      cisco.meraki.meraki_device:
+#        auth_key: "{{ meraki_key }}"
+#        org_name: "{{ orgName }}"
+#        net_id: "{{ off_network.data.id }}"
+#        state: present
+#        serial: "{{ item.serial_no }}"
+#        name: "{{ item.hostname }}"
+#      with_items: "{{ device_serial.documents }}"
+#      ignore_errors: yes
+#
+#    - name: "TASK 4: Update devices"
+#      cisco.meraki.devices:
+#        meraki_api_key: "{{ meraki_key }}"
+#        state: present
+#        name: "{{ item.hostname }}"
+#        serial: "{{ item.serial_no }}"
+#      with_items: "{{ device_serial.documents }}"
+#

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLAN</title>
+    <style>
+        /* CSS Styles */
+        nav {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            margin-bottom: 20px; /* Add margin to prevent content from overlapping with the nav bar */
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            float: left;
+        }
+
+        nav ul li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 2px solid transparent; /* Initially transparent border */
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd; /* Change background color on hover */
+        }
+
+        /* Active tab style */
+        nav ul li.active a {
+            background-color: #ccc; /* Background color of active tab */
+            border-bottom-color: transparent; /* Remove border from active tab */
+        }
+
+        /* Container style for form */
+        .container {
+            margin: 20px;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Distribute items evenly along the main axis */
+        }
+
+        /* Form column style */
+        .column {
+            flex: 0 0 48%; /* Set width of each column */
+        }
+
+        /* Label style */
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Text input style */
+        input[type="text"],
+        select {
+            width: calc(100% - 24px); /* Adjust width to account for borders */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Submit button style */
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit button style on hover */
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="devices.html">Devices</a></li>
+            <li class="active"><a href="vlan.html">VLAN</a></li>
+            <li><a href="ssid.html">SSID</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="column">
+            <h2>VLAN & DHCP Configuration</h2>
+            <form>
+                <label for="networkName">Network Name:</label>
+                <input type="text" id="networkName" name="networkName">
+
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name">
+
+                <label for="vlan_id">VLAN ID:</label>
+                <input type="text" id="vlan_id" name="vlan_id">
+
+                <label for="subnet">Subnet:</label>
+                <input type="text" id="subnet" name="subnet">
+
+                <label for="gateway">Gateway:</label>
+                <input type="text" id="gateway" name="gateway">
+
+                <label for="enable_dhcp">Enable DHCP:</label>
+                <select id="enable_dhcp" name="enable_dhcp">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+
+                <label for="lease_time">Lease Time:</label>
+                <select id="lease_time" name="lease_time">
+                    <option value="1_day">1 day</option>
+                    <option value="1_week">1 week</option>
+                </select>
+            </form>
+        </div>
+        
+        <div class="column">
+            <h2>&nbsp;</h2> <!-- Placeholder for alignment -->
+            <form>
+                <label for="reserved_ip_start">Reserved IP Start:</label>
+                <input type="text" id="reserved_ip_start" name="reserved_ip_start">
+
+                <label for="reserved_ip_end">Reserved IP End:</label>
+                <input type="text" id="reserved_ip_end" name="reserved_ip_end">
+
+                <label for="dns_nameservers">DNS Nameservers:</label>
+                <input type="text" id="dns_nameservers" name="dns_nameservers">
+
+                <label for="dhcp_option">DHCP Option:</label>
+                <input type="text" id="dhcp_option" name="dhcp_option">
+
+                <label for="dhcp_type">DHCP Type:</label>
+                <input type="text" id="dhcp_type" name="dhcp_type">
+
+                <label for="ntp_ip">NTP IP:</label>
+                <input type="text" id="ntp_ip" name="ntp_ip">
+
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

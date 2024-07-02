@@ -1,0 +1,26 @@
+---
+vlans:
+  - name: Corp_wired
+    vlan_id: 10
+    subnet: 10.173.0.0/21
+    gateway: 10.173.0.1
+  - name: Corp_wifi
+    vlan_id: 20
+    subnet: 10.173.8.0/21
+    gateway: 10.173.8.1
+  - name: Guest_wifi
+    vlan_id: 30
+    subnet: 10.173.16.0/22
+    gateway: 10.173.16.1
+  - name: DMZ
+    vlan_id: 99
+    subnet: 10.173.20.0/25
+    gateway: 10.173.20.1
+  - name: Management
+    vlan_id: 1
+    subnet: 10.173.20.128/25
+    gateway: 10.173.20.129
+  - name: Guest_wired
+    vlan_id: 40
+    subnet: 10.173.24.0/21
+    gateway: 10.173.24.1
