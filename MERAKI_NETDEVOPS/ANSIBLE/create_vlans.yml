@@ -1,0 +1,75 @@
+---
+
+- name: "PLAY 1: CREATE VLANS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "VLAN_DHCP"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: vlan_data
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        vlan_data: "{{ vlan_data.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Enable VLAN"
+      meraki_mx_network_vlan_settings:
+        auth_key: "{{ meraki_key }}"
+        org_name: "{{ orgName }}"
+        net_name: "{{ networkName }}"
+        state: present
+        vlans_enabled: true    
+
+    - name: "TASK 4: Create VLANs for {{ networkName }}"
+      cisco.meraki.networks_appliance_vlans:
+        meraki_api_key: "{{ meraki_key }}"
+        networkId: "{{off_network.data.id}}"
+        state: present
+        id: "{{ item.vlan_id }}"
+        name: "{{ item.name }}"
+        subnet: "{{ item.subnet }}"
+        applianceIp: "{{ item.gateway }}"
+        dhcpHandling: "{{ item.enable_dhcp }}"
+        dhcpLeaseTime: "{{ item.lease_time }}"
+        dhcpBootOptionsEnabled: false
+        dhcpOptions:
+        - code: "{{ item.dhcp_option }}"
+          type: "{{ item.dhcp_type }}"
+          value: "{{ item.ntp_ip }}"
+        reservedIpRanges:
+          - start: "{{ item.reserved_ip_start }}"
+            end: "{{ item.reserved_ip_end }}"
+            comment: "reserved_range"
+        dnsNameservers: "{{ item.dns_nameservers }}"
+      with_items: "{{ vlan_data }}"

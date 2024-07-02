@@ -1,0 +1,61 @@
+---
+- name: "PLAY 1: CLAIM DEVICES"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Device Serial Hostname"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: device_serial
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        device_serial: "{{ device_serial.stdout | from_json }}"
+
+    - name: "TASK 2: Create office network"
+      meraki_network:
+        auth_key: "{{ merakikey }}"
+        state: present
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network
+
+    - name: "TASK 3: Add Devices to Network"
+      cisco.meraki.meraki_device:
+        auth_key: "{{ merakikey }}"
+        org_name: "{{ orgName }}"
+        net_id: "{{ off_network.data.id }}"
+        state: present
+        serial: "{{ item.serial_nos }}"
+        name: "{{ item.hostname }}"
+      with_items: "{{ device_serial }}"
+      ignore_errors: yes
+
+    - name: "TASK 4: Update by id"
+      cisco.meraki.devices:
+        meraki_api_key: "{{ merakikey }}"
+        state: present
+        name: "{{ item.hostname }}"
+        serial: "{{ item.serial_nos }}"
+      with_items: "{{ device_serial }}"

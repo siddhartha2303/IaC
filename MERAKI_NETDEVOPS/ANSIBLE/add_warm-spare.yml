@@ -1,0 +1,74 @@
+---
+
+- name: "PLAY 1: CONFIGURE WARM SPARE"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Device Serial Hostname"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: device_serial
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        device_serial: "{{ device_serial.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network ID"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Configure Warm Spare"
+      cisco.meraki.networks_appliance_warm_spare:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        enabled: true
+        networkId: "{{ off_network.data.id}}"
+        spareSerial: "{{ item.serial_nos }}"
+      with_items: "{{ device_serial }}"
+      when: item.warmspare == "yes"
+
+    - name: "TASK 4: Update STP Root"
+      cisco.meraki.networks_switch_stp:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        networkId: "{{off_network.data.id}}"
+        rstpEnabled: true
+        stpBridgePriority:
+        - stpPriority: 4096
+          switches:
+          - "{{ item.serial_nos }}"
+      with_items: "{{ device_serial }}"
+      when: item.stpRoot == "yes"
+
+    - name: "TASK 5: Update Switch Management Vlan"
+      cisco.meraki.networks_switch_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        networkId: "{{off_network.data.id}}"
+        vlan: 430

@@ -1,0 +1,22 @@
+---
+- name: "PLAY 1: CONFIGURE SSE RULES"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Configure SSE Rule"
+      command: python3 sse_firewall_policy.py
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      changed_when: false
+      check_mode: no
+      run_once: true

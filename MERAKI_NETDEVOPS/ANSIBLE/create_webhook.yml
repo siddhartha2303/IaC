@@ -1,0 +1,133 @@
+---
+
+- name: "PLAY 1: CREATE WEBHOOK"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read Alert data from Excel"
+      command: python3 read_excel.py "Alerts"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: Alerts
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        Alerts: "{{ Alerts.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Create HTTP Webhook"
+      cisco.meraki.networks_webhooks_http_servers:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        name: Servicenow_ITOM
+        networkId: "{{off_network.data.id}}"
+        sharedSecret: testintegrationuser:Testintegration$123
+        url: https://hclpocm1.service-now.com/api/sn_em_connector/em/inbound_event?source=ciscoMeraki
+      register: webhook_id
+
+    - debug:
+        msg: "{{ webhook_id.meraki_response.id }}"
+          
+#    - name: "TASK 4: Configure Device Down Alerts with Timeout"
+#      cisco.meraki.networks_alerts_settings:
+#        meraki_api_key: "{{ meraki_key }}"
+#        state: present
+#        alerts:
+#        - alertDestinations:
+#            allAdmins: false
+#            snmp: false
+#          enabled: true
+#          filters:
+#            timeout: "{{ item.timeout }}"
+#          type: "{{ item.alerts }}"
+#        networkId: "{{ off_network.data.id }}"
+#      with_items: "{{ Alerts }}"
+#      when: item.filter == "yes" and item.timeout != "no"
+
+    - name: "TASK 5: Configure Device Down Alerts with Selector"
+      cisco.meraki.networks_alerts_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        alerts:
+        - alertDestinations:
+            allAdmins: false
+            snmp: false
+          enabled: true
+          type: "{{ item.alerts }}"
+#          filters:
+#            selector: "{{ item.selector | from_json }}"
+        networkId: "{{ off_network.data.id }}"
+      with_items: "{{ Alerts }}"
+      when: item.filter == "yes" and item.selector != "no"
+
+    - name: "TASK 6: Configure Device Down Alerts with Threshold"
+      cisco.meraki.networks_alerts_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        alerts:
+        - alertDestinations:
+            allAdmins: false
+            snmp: false
+          enabled: true
+          filters:
+            threshold: "{{ item.threshold }}"
+            period: "{{ item.period }}"
+          type: "{{ item.alerts }}"
+        networkId: "{{ off_network.data.id }}"
+      with_items: "{{ Alerts }}"
+      when: item.filter == "yes" and item.threshold != "no"
+
+
+    - name: "TASK 7: Configure Alerts without Filter"
+      cisco.meraki.networks_alerts_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        alerts:
+        - alertDestinations:
+            allAdmins: false
+            snmp: false
+          enabled: true
+          type: "{{ item.alerts }}"
+        networkId: "{{ off_network.data.id }}"
+      with_items: "{{ Alerts }}"
+      when: item.filter == "no"
+
+
+    - name: "TASK 8: Configure Global Alerts"
+      cisco.meraki.networks_alerts_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        defaultDestinations:
+          allAdmins: true
+          httpServerIds:
+          - "{{ webhook_id.meraki_response.id }}"
+          snmp: true
+        networkId: "{{ off_network.data.id }}"

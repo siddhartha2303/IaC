@@ -1,0 +1,69 @@
+---
+
+- name: "PLAY 1: CREATE ACCESS POLICY"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "RADIUS"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: radius
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        radius: "{{ radius.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network
+
+    - name: "TASK 2: Configure RADIUS"
+      cisco.meraki.networks_switch_access_policies:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        accessPolicyType: "{{ item.accessPolicyType}}"
+        dot1x:
+          controlDirection: both
+        hostMode: "{{ item.hostMode }}"
+        name: 'Radius access policy #1'
+        networkId: "{{off_network.data.id}}"
+        radiusAccountingEnabled: true
+        radiusAccountingServers:
+        - host: "{{ item.radiusServer }}"
+          port: 1813
+          secret: "{{ item.secret }}"
+        radiusCoaSupportEnabled: false
+        radiusServers:
+        - host: "{{ item.radiusServer }}"
+          port: 1812
+          secret: "{{ item.secret }}"
+        radiusTestingEnabled: false
+        urlRedirectWalledGardenEnabled: false
+      with_items: "{{ radius }}"
+      ignore_errors: yes

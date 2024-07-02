@@ -1,0 +1,104 @@
+
+---
+
+- name: "PLAY 1: CONFIGURE VPN SUBNETS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "VLAN_DHCP"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: vlan_data
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        vlan_data: "{{ vlan_data.stdout | from_json }}"
+  
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Get all networks _appliance _vpn _sitetositevpn"
+      uri:
+        url: "{{baseUrl}}/networks/{{ off_network.data.id}}/appliance/vpn/siteToSiteVpn"
+        method: GET
+        body_format: json
+        headers:
+          Content-Type: application/json
+          X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+        status_code: [200, 201, 202]
+        return_content: true
+      register: result
+      until: result.json.mode != "none"
+      retries: 30
+      delay: 10
+
+    - name: "TASK 3: Configure VPN Subnets"
+      local_action:
+        module: shell
+        cmd: echo "{{ result.json.mode }}"
+      register: result_output
+      until: result_output.stdout != "none"
+      retries: 30
+      delay: 10      
+
+    - name: "TASK 4: Configure VPN Subnets"
+      uri:
+        url: "{{baseUrl}}/networks/{{off_network.data.id}}/appliance/vpn/siteToSiteVpn"
+        method: PUT
+        body_format: json
+        headers:
+          Content-Type: application/json
+          X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+        status_code: [200, 201, 202]
+        return_content: true
+        body: |
+          {
+            "mode": "spoke",
+            "hubs": [
+              {
+                "hubId": "{{ result.json.hubs[0].hubId }}",
+                "useDefaultRoute": "false"
+              },
+              {
+                "hubId": "{{ result.json.hubs[1].hubId }}",
+                "useDefaultRoute": "false"
+              }
+            ],
+            "subnets": [
+              {
+                "localSubnet": "{{ item.subnet }}",
+                "useVpn": "true"
+              }
+            ]
+          }
+      with_items: "{{ vlan_data }}"
+      when: result.json.hubs[0].hubId is defined and result.json.hubs[0].hubId | length > 0 and 
+            result.json.hubs[1].hubId is defined and result.json.hubs[1].hubId | length > 0 and 
+            not item.subnet.startswith('192.168')

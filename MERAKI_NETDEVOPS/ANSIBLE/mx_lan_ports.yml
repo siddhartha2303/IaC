@@ -1,0 +1,56 @@
+---
+- name: "PLAY 1: CONFIGURE MX LAN PORTS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "MX LAN Ports"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: mx_port
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        mx_port: "{{ mx_port.stdout | from_json }}"
+
+    - name: "TASK 2: Update interface as Trunk"
+      meraki_mx_l2_interface:
+        auth_key: "{{ meraki_key }}"
+        net_name: "{{ networkName }}"
+        org_id: "{{ organizationId }}"
+        state: present
+        enabled: "true"
+        number: "{{ item.id }}"
+        port_type: "trunk"
+        allowed_vlans: "{{ item.allowedVlans }}"
+        vlan: "{{ item.vlan }}"
+        drop_untagged_traffic: "false"
+        allowed_vlans: "all"
+      with_items: "{{ mx_port }}"
+      when: item.porttype == "trunk"
+
+    - name: "TASK 3: Update interface as Access"
+      meraki_mx_l2_interface:
+        auth_key: "{{ meraki_key }}"
+        net_name: "{{ networkName }}"
+        org_id: "{{ organizationId }}"
+        state: present
+        enabled: "true"
+        number: "{{ item.id }}"
+        port_type: "access"
+        vlan: "{{ item.vlan }}"
+      with_items: "{{ mx_port }}"
+      when: item.porttype == "access"

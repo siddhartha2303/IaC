@@ -1,0 +1,38 @@
+---
+
+- name: "PLAY 1: CREATE S2S FIREWALL RULES"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "MX S2S Firewall"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: firewall_rules
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        firewall_rules: "{{ firewall_rules.stdout | from_json }}"
+
+    - debug:
+        var: firewall_rules
+
+    - name: "TASK 2: Create L3 Firewall Rules"
+      cisco.meraki.organizations_appliance_vpn_vpn_firewall_rules:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        organizationId: "{{ organizationId }}"
+        rules: "{{ firewall_rules }}"

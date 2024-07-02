@@ -1,0 +1,67 @@
+---
+
+- name: "PLAY 1: CONFIGURE NETWORK WIDE SETTINGS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Network Settings"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: network_settings
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        network_settings: "{{network_settings.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Config SNMP"
+      cisco.meraki.networks_snmp:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        networkId: "{{off_network.data.id}}"
+        access: "{{ item.snmp_type }}"
+        communityString: "{{ item.snmp_communityString }}"
+      with_items: "{{ network_settings }}"
+
+    - name: "TASK 4: Local/Remote Status Page & Credential"
+      cisco.meraki.networks_settings:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        localStatusPage:
+          authentication:
+            enabled: true
+            password: "{{ local_password }}"
+        localStatusPageEnabled: true
+        networkId: "{{off_network.data.id}}"
+        remoteStatusPageEnabled: true
+        securePort:
+          enabled: false

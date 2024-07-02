@@ -1,0 +1,99 @@
+---
+
+- name: "PLAY 1: CREATE TRAFFIC SHAPPING RULES"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Custom SLA Traffic Shap Rule"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: traffic_shapping_data
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        traffic_shapping_data: "{{ traffic_shapping_data.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Create custom policy"
+      cisco.meraki.networks_appliance_traffic_shaping_custom_performance_classes:
+        meraki_api_key: "{{ meraki_key }}"
+        maxJitter: "{{ item.jitter }}"
+        maxLatency: "{{ item.latency }}"
+        maxLossPercentage: "{{ item.loss }}"
+        name: "{{ item.className }}"
+        networkId: "{{ off_network.data.id }}"
+      with_items: "{{ traffic_shapping_data }}"
+      register: custom_sla
+      ignore_errors: yes
+
+    - name: "TASK 4: Create traffic shapping rules"
+      cisco.meraki.networks_appliance_traffic_shaping_uplink_selection:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        activeActiveAutoVpnEnabled: true
+        defaultUplink: wan1
+        failoverAndFailback:
+          immediate:
+            enabled: false
+        loadBalancingEnabled: true
+        networkId: "{{ off_network.data.id}}"
+        vpnTrafficUplinkPreferences:
+        - failOverCriterion: "{{ item.vpnFailOverCriterion }}"
+          performanceClass:
+#            builtinPerformanceClassName: "{{ item.className }}"
+            customPerformanceClassId: "{{ custom_sla.results[0].meraki_response.customPerformanceClassId }}"
+            type: custom
+          preferredUplink: "{{ item.preferredUplink }}"
+          trafficFilters:
+          - type: "{{ item.vpnTrafficFiltersType }}"
+            value:
+              destination:
+                fqdn: "{{ item.vpnDestinationCIDR }}"
+                port: "{{ item.vpnDestinationPort }}"
+              protocol: "{{ item.vpnProtocol }}"
+              source:
+                cidr: "{{ item.vpnSourceCIDR }}"
+                port: "{{ item.vpnSourcePort }}"
+        wanTrafficUplinkPreferences:
+        - preferredUplink: "{{ item.wanTrafficUplinkPreferences }}"
+          trafficFilters:
+          - type: "{{ item.wanTrafficFiltersType }}"
+            value:
+              destination:
+                cidr: "{{ item.wanDestinationCIDR}}"
+                port: "{{ item.wanDestinationPort}}"
+              protocol: "{{ item.wanProtocol }}"
+              source:
+                cidr: "{{ item.wanSourceCIDR }}"
+                port: "{{ item.wanSourcePort }}"
+      with_items: "{{ traffic_shapping_data }}" 
+      ignore_errors: yes

@@ -1,0 +1,49 @@
+---
+
+- name: "PLAY 1: CREATE VLANS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from CSV"
+      read_csv:
+        path: ./variables/mx-traffic-shapping.csv
+        delimiter: ','
+      register: traffic_shapping_data
+
+    - name: Query office network
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: Create custom policy 
+      cisco.meraki.networks_appliance_traffic_shaping_custom_performance_classes:
+        meraki_api_key: "{{ meraki_key }}"
+        maxJitter: "{{ item.jitter }}"
+        maxLatency: "{{ item.latency }}"
+        maxLossPercentage: "{{ item.loss }}"
+        name: "{{ item.className }}"
+        networkId: "{{ off_network.data.id}}"
+      with_items: "{{ traffic_shapping_data.list }}"
+      register: custom_sla

@@ -1,0 +1,51 @@
+---
+
+- name: "PLAY 1: CREATE POLICY OBJECTS"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Policy Objects"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: policy_objects
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        policy_objects: "{{ policy_objects.stdout | from_json }}"
+
+    - name: "TASK 2: Create CIDR Policy Objects"
+      cisco.meraki.organizations_policy_objects:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        category: network
+        groupIds: []
+        name: "{{ item.name }}"
+        organizationId: "{{ organizationId }}"
+        type: cidr
+        cidr: "{{ item.value }}"
+      with_items: "{{ policy_objects }}"
+      register: objects
+
+    - name: "TASK 3: Print name and id in CSV format"
+      debug:
+        msg: "{{ item.item.name }},{{ item.meraki_response.id }}"
+      loop: "{{ objects.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+        index_var: my_index
+
+

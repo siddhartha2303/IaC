@@ -1,0 +1,16 @@
+rule description,rulename,action,Source Address,Destination address,tcp,udp,papp,appname,description
+Python test Rule 101,Python test Rule 201,allow,"13.12.11.10/32,10.11.12.13/32,10.23.0.0/24","23.11.5.10/32,12.11.45.11/32","80-81,110",80-82,,PyApp200,app1 desc
+Python test Rule 102,Python test Rule 202,allow,"113.12.11.10/32,10.111.12.13/32,10.213.0.0/25","23.11.5.61/32,12.11.45.12/32",,80-82,,PyApp201,app2 desc
+Python test Rule 103,Python test Rule 203,allow,"13.121.11.10/32,10.11.121.13/32,10.231.0.0/26","23.11.5.63/32,12.11.45.13/32",80-83,,,PyApp202,app2 desc
+Python test Rule 104,Python test Rule 204,allow,"131.12.11.10/32,101.11.12.13/32,110.23.0.0/27","23.11.5.64/32,12.11.45.14/32",,80-84,,PyApp203,app2 desc
+Python test Rule 105,Python test Rule 205,allow,"132.12.11.10/32,10.121.12.13/32,10.223.0.0/28","23.11.5.65/32,12.11.45.15/32",80-85,,,PyApp204,app2 desc
+Python test Rule 106,Python test Rule 206,allow,"13.12.121.10/32,10.11.122.13/32,120.223.0.0/29","23.11.5.66/32,12.11.45.16/32",,80-86,,PyApp205,app2 desc
+Python test Rule 107,Python test Rule 207,allow,"13.12.141.10/32,10.141.12.13/32,10.243.0.0/30","23.11.5.67/32,12.11.45.17/32",,80-87,,PyApp206,app2 desc
+Python test Rule 108,Python test Rule 208,allow,"13.12.151.10/32,10.11.152.13/32,10.214.0.0/24","23.11.5.68/32,12.11.45.18/32",,80-88,,PyApp207,app2 desc
+Python test Rule 109,Python test Rule 209,allow,"13.12.161.10/32,10.11.162.13/32,10.234.60.0/25","23.11.5.69/32,12.11.45.19/32",,80-89,,PyApp208,app2 desc
+Python test Rule 110,Python test Rule 210,allow,"13.12.11.101/32,10.171.142.13/32,10.234.70.0/26","23.11.5.70/32,12.11.45.120/32",80-90,,,PyApp209,app2 desc
+Python test Rule 111,Python test Rule 211,allow,"13.12.141.10/32,10.11.142.13/32,10.234.80.0/27","23.11.5.71/32,12.11.45.21/32",90-91,,icmp,PyApp210,app2 desc
+Python test Rule 112,Python test Rule 212,allow,"13.12.141.10/32,10.11.142.13/32,10.234.90.0/28",23.11.5.75,111,21,,PyApp211,app2 desc
+Python test Rule 113,Python test Rule 213,allow,13.12.141.14,23.11.5.76,112,22,,PyApp212,app2 desc
+Python test Rule 114,Python test Rule 214,allow,13.12.141.15,23.11.5.77,113,23,,PyApp213,app2 desc
+Python test Rule 115,Python test Rule 215,allow,13.12.141.16,23.11.5.78,114,24,,PyApp214,app2 desc

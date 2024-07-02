@@ -1,0 +1,12 @@
+FROM python:3.7.6-stretch
+
+RUN pip install pip --upgrade
+RUN pip install ansible
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN sudo apt-get update -y && \
+    sudo apt-get install -y --no-install-recommends \
+    sshpass
+
+WORKDIR /work

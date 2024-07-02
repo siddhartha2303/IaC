@@ -1,0 +1,8 @@
+---
+meraki_key: "a00e4c690f1cb8549629509fb3f3f2967f1a83da"
+baseUrl: "https://api.meraki.com/api/v1"
+orgName: "ORG_Lab_Chicago_2"
+organizationId: "698057942242432672"
+orgID: "698057942242432672"
+networkName: "Lab_Chicago_2"
+meraki_key1: "2673aab0b2f9b4a0c82fbd2c3e19a791b53cc137"

@@ -1,0 +1,54 @@
+#some change
+trigger:
+- main # or the name of your main branch
+- feature/*
+
+pool:
+  name: ubuntu_pool
+  demands:
+  - agent.name -equals ubuntu_agent
+
+stages:
+- stage: deploy_test
+  jobs:
+  - job: DeployTest
+    displayName: 'Deploy Test'
+    steps:
+    - script: |
+        echo "JAVA_HOME_17_X64 $JAVA_HOME_17_X64"
+        echo "JAVA_HOME_11_X64 $JAVA_HOME_11_X64"
+        echo "JAVA_HOME $JAVA_HOME"
+        java -version
+
+    - task: SonarQubePrepare@5
+      inputs:
+        SonarQube: 'sonarqube'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'MERAKI-NETDEVOPS_ANSIBLE_e4016f60-e2e1-42c1-9dc7-adf01e94e95c'
+        cliSources: '.'
+
+    - task: SonarQubeAnalyze@5
+      inputs:
+        jdkversion: 'JAVA_HOME'
+
+    - task: SonarQubePublish@5
+      inputs:
+        pollingTimeoutSec: '300'
+
+    - script: |
+        /home/mcdaccount/.local/bin/spotter scan .
+        echo "Scan Complete"
+#        ansible-playbook -i inventory-meraki mx_traffic_shapping.yml
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(build.sourcesdirectory)'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'

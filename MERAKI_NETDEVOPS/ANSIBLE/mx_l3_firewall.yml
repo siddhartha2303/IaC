@@ -1,0 +1,54 @@
+---
+
+- name: "PLAY 1: CREATE L3 FIREWALL RULES"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "MX L3 Firewall"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: firewall_rules
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        firewall_rules: "{{ firewall_rules.stdout | from_json }}"
+
+    - debug:
+        var: firewall_rules
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Create L3 Firewall Rules"
+      cisco.meraki.networks_appliance_firewall_l3_firewall_rules:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        networkId: "{{off_network.data.id}}"
+        rules: "{{ firewall_rules }}"

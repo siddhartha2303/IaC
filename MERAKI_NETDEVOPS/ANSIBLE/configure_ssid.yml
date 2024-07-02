@@ -1,0 +1,112 @@
+---
+
+- name: "PLAY 1: CONFIGURE WARM SPARE"
+  hosts: meraki
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.meraki
+#  vars_files:
+#    - networks.yml
+  vars:
+    meraki_headers:
+      Content-Type: "application/json"
+      X-Cisco-Meraki-API-Key: "{{ meraki_key }}"
+
+  tasks:
+
+
+    - name: "TASK 1: Read VLAN data from Excel"
+      command: python3 read_excel.py "Wireless SSID"
+      args:
+        chdir: ./scripts  # Specify the path to your Python script
+      register: wireless_ssid
+      changed_when: false
+      check_mode: no
+      run_once: true
+
+    - set_fact:
+        wireless_ssid: "{{ wireless_ssid.stdout | from_json }}"
+
+    - name: "TASK 2: Query office network"
+      meraki_network:
+        auth_key: "{{ meraki_key }}"
+        state: query
+        org_name: "{{ orgName }}"
+        name: "{{ networkName }}"
+        type: 
+          - appliance
+          - switch
+          - wireless
+          - sensor
+          - systemsManager
+          - camera
+          - cellularGateway
+      register: off_network  
+
+    - name: "TASK 3: Create SSID with PSK"
+      cisco.meraki.networks_wireless_ssids:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        enabled: true
+        name: "{{ item.ssid }}"
+        networkId: "{{ off_network.data.id}}"
+        number: "{{ item.number }}"
+        authMode: "{{ item.authMode }}"
+        encryptionMode: "{{ item.encryptionMode }}"
+        psk: "{{ item.password }}"
+        ipAssignmentMode: "{{item.ipAssignmentMode}}"
+        useVlanTagging: true
+        defaultVlanId: "{{item.vlanId}}"
+        visible: "{{item.visible}}"
+      with_items: "{{ wireless_ssid }}"
+      when: (item['ipAssignmentMode'] | default('') != 'VPN') and item.authMode == "psk"
+      ignore_errors: yes
+
+    - name: "TASK 4: Create SSID with Tunnel"
+      cisco.meraki.networks_wireless_ssids:
+        meraki_api_key: "{{ meraki_key }}"
+        state: present
+        enabled: true
+        name: "{{ item.ssid }}"
+        networkId: "{{ off_network.data.id}}"
+        number: "{{ item.number }}"
+        authMode: "{{ item.authMode }}"
+        encryptionMode: "{{ item.encryptionMode }}"
+        psk: "{{ item.password }}"
+        ipAssignmentMode: "{{item.ipAssignmentMode}}"
+        concentratorNetworkId: "{{ off_network.data.id}}"
+        vlanId: "{{item.vlanId}}"
+        visible: "{{item.visible}}"
+      with_items: "{{ wireless_ssid }}"
+      when: (item['ipAssignmentMode'] | default('') == 'VPN') and item.authMode == "psk"
+      ignore_errors: yes
+
+#    - name: "TASK 3: Create SSID with Cert"
+#      cisco.meraki.networks_wireless_ssids:
+#        meraki_api_key: "{{ meraki_key }}"
+#        state: present
+#        enabled: true
+#        name: "{{ item.ssid }}"
+#        networkId: "{{ off_network.data.id}}"
+#        number: "{{ item.number }}"
+#        authMode: "{{ item.authMode }}"
+#        encryptionMode: "{{ item.encryptionMode }}"
+#        ipAssignmentMode: "{{item.ipAssignmentMode}}"
+#        ldap:
+#          servers: []
+#        useVlanTagging: true
+#        defaultVlanId: "{{item.vlanId}}"
+#        visible: "{{item.visible}}"
+#        localRadius:
+#          passwordAuthentication:
+#            enabled: true
+#          certificateAuthentication:
+#            useLdap: false
+#            enabled: true
+#            useOcsp: false
+#            clientRootCaCertificate:
+#              contents: "/mnt/c/Users/sid/Downloads/certs/HHOT Cert/REQ00993820/Root_SHA2.pem"
+#      with_items: "{{ wireless_ssid }}"
+#      when: (item['ipAssignmentMode'] | default('') != 'VPN') and item.authMode == "8021x-localradius"
+#      ignore_errors: yes

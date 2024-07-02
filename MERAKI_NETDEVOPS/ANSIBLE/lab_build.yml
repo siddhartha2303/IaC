@@ -1,0 +1,62 @@
+---
+- name: Fetch secret from Azure Key Vault
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    subscription_id: "ed8861e0-0657-467b-bb7d-069bf3f64457"
+    vaultName: "merakikey"
+    vaultSecretName: "merakiapikey"
+    servicePrincipalId: "014bfab2-decd-476e-88f7-e717b899f9b0"
+    servicePrincipalPassword: "H-G8Q~JaTHF_fQrOn8TKWuroHM~168u~o~IWIcyQ"
+    tenantId: "bb2951b7-328b-4067-a4b1-474b66c9cefc"
+  
+  tasks:
+    - name: connect AzPowerShell to Azure
+      shell: |
+        $passwd = ConvertTo-SecureString "{{ servicePrincipalPassword }}" -AsPlainText -Force;
+        $pscredential = New-Object System.Management.Automation.PSCredential("{{ servicePrincipalId }}", $passwd);
+        Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant "{{ tenantId }}";
+      args:
+        executable: /usr/bin/pwsh
+
+    - name: Run a pwsh command
+      shell: Get-AzKeyVaultSecret -Name "{{ vaultSecretName }}" -VaultName "{{ vaultName }}" -AsPlainText
+      args:
+        executable: /usr/bin/pwsh
+      register: result
+
+    - name: Set a fact with the retrieved secret
+      set_fact:
+        merakikey: "{{ result.stdout }}"
+
+    - debug:
+        msg: "{{ result.stdout }}"
+
+- name: Create Network and Claim Devices
+  import_playbook: claim_devices.yml
+#- name: Configure Warm Spare
+#  import_playbook: add_warm-spare.yml
+#- name: Enable and Configure VLANS
+#  import_playbook: create_vlans.yml
+#- name: Configure SSE Hub
+#  import_playbook: add_sse_hub.yml
+#- name: Configure MX LAN Ports
+#  import_playbook: mx_lan_ports.yml
+#- name: Configure traffic shapping
+#  import_playbook: mx_traffic_shapping.yml
+#- name: Create Access Policy
+#  import_playbook: create_accesspolicy.yml
+#- name: Configure MS Switch Ports
+#  import_playbook: ms_lan_ports.yml
+#- name: Configure Webhook
+#  import_playbook: create_webhook.yml
+#- name: Create and Configure SSID
+#  import_playbook: configure_ssid.yml
+#- name: Configure VPN Subnets
+#  import_playbook: mx_vpn_subnets.yml
+#- name: Configure L3 Firewall Rule
+#  import_playbook: mx_l3_firewall.yml
+#- name: Configure S2S Firewall Rule
+#  import_playbook: mx_s2s_firewall.yml
+#some changes
